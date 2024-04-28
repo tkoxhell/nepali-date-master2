@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="collMat">#0098DA</color>
+    <color name="collMat">#26324A</color>
+    <color name="accentColor">#76BF4E</color>
 </resources>

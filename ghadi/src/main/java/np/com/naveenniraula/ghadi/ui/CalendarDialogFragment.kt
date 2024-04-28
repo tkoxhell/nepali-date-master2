@@ -208,7 +208,8 @@ class CalendarDialogFragment : DialogFragment() {
         // year button listeners
         // -----------------------
 
-        mBinding.gpfYear.setTextColor(bgFgColor.first)
+//        mBinding.gpfYear.setTextColor(bgFgColor.first)
+        mBinding.gpfYear.setTextColor(getResources().getColor(R.color.collMat))
         viewModel.ui.bsYear =
             if (::requestedDate.isInitialized) ConversionUtil.toNepali(requestedDate.convertToNepali().year.toString())
                 ?: ""
@@ -268,7 +269,8 @@ class CalendarDialogFragment : DialogFragment() {
         // month button listeners
         // -----------------------
 
-        mBinding.gpfMonth.setTextColor(bgFgColor.first)
+//        mBinding.gpfMonth.setTextColor(bgFgColor.first)
+        mBinding.gpfMonth.setTextColor(getResources().getColor(R.color.collMat))
         var extMonth = if (::requestedDate.isInitialized) {
             DateUtils.MONTH_NAMES_MAPPED[requestedDate.convertToNepali().month]
         } else {

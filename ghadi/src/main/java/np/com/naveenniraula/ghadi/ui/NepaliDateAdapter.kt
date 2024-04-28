@@ -202,8 +202,8 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
         private fun setNormalColor(di: DateItem) {
 
             if (di.isSelected) {
-                root.setBackgroundResource(R.drawable.bg_circle_padding)
-                test.setTextColor(Color.WHITE)
+                root.setBackgroundResource(R.drawable.bg_circle_padding_tran)
+                test.setTextColor(Color.BLACK)
             } else {
                 test.setTextColor(Color.BLACK)
                 root.setBackgroundColor(Color.WHITE)
