@@ -139,7 +139,7 @@ class CalendarDialogFragment : DialogFragment() {
             }
         })
 
-        viewModel.getCalendarData().observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+        viewModel.getCalendarData().observe(this, androidx.lifecycle.Observer {
             viewModel.ui.isCalculating = false
             adapter.setDataList(it)
             adjustRecyclerViewHeight(it.size)
