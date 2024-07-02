@@ -2,4 +2,5 @@
 <resources>
     <color name="collMat">#26324A</color>
     <color name="accentColor">#76BF4E</color>
+    <color name="holo_red_dark">#ffcc0000</color>
 </resources>
