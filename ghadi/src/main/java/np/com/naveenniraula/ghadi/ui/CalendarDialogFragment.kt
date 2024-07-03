@@ -218,12 +218,14 @@ class CalendarDialogFragment : DialogFragment() {
         val yPrev = getRootView().findViewById<ImageButton>(R.id.gpfPrevYear)
         val yNext = getRootView().findViewById<ImageButton>(R.id.gpfNextYear)
 
+//        Ui.tintButtonImage(yPrev, R.color.collMat)
+
         yPrev.setOnClickListener {
 
             val yearNumber = getDisplayedYear() - 1
 
             if (yearNumber == DateUtils.endNepaliYear - 1) {
-                Ui.tintButtonImage(yPrev, R.color.accentColor)
+                Ui.tintButtonImage(yPrev, R.color.collMat)
             } else {
                 Ui.tintButtonImage(yNext, R.color.collMat)
             }
@@ -246,7 +248,7 @@ class CalendarDialogFragment : DialogFragment() {
             val yearNumber = getDisplayedYear() + 1
 
             if (yearNumber == DateUtils.endNepaliYear - 1) {
-                Ui.tintButtonImage(yNext, R.color.accentColor)
+                Ui.tintButtonImage(yNext, R.color.collMat)
             } else {
                 Ui.tintButtonImage(yPrev, R.color.collMat)
             }
@@ -300,6 +302,7 @@ class CalendarDialogFragment : DialogFragment() {
         }
 
         val prev = getRootView().findViewById<ImageButton>(R.id.gpfPrevMonth)
+//        Ui.tintButtonImage(prev, R.color.collMat)
         prev.setOnClickListener {
             if (viewModel.ui.isBs) {
                 val nYear = getDisplayedYear()
