@@ -225,7 +225,7 @@ class CalendarDialogFragment : DialogFragment() {
             val yearNumber = getDisplayedYear() - 1
 
             if (yearNumber == DateUtils.endNepaliYear - 1) {
-                Ui.tintButtonImage(yPrev, R.color.collMat)
+                Ui.tintButtonImage(yPrev, R.color.holo_red_dark)
             } else {
                 Ui.tintButtonImage(yNext, R.color.collMat)
             }
@@ -248,7 +248,7 @@ class CalendarDialogFragment : DialogFragment() {
             val yearNumber = getDisplayedYear() + 1
 
             if (yearNumber == DateUtils.endNepaliYear - 1) {
-                Ui.tintButtonImage(yNext, R.color.collMat)
+                Ui.tintButtonImage(yNext, R.color.holo_red_dark)
             } else {
                 Ui.tintButtonImage(yPrev, R.color.collMat)
             }
