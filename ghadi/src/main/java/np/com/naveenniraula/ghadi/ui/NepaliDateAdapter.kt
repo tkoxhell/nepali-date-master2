@@ -212,7 +212,8 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
 
         private fun setTodayColor() {
             test.setTextColor(Color.WHITE)
-            root.setBackgroundResource(R.drawable.bg_circle_padding)
+//            root.setBackgroundResource(R.drawable.bg_circle_padding)
+            root.setBackgroundResource(R.drawable.bg_circle_padding_tran)
         }
 
         private fun setHolidayColor() {
