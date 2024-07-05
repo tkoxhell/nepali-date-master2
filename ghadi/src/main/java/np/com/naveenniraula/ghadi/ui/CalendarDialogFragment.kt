@@ -67,7 +67,7 @@ class CalendarDialogFragment : DialogFragment() {
         ViewModelProvider(this).get(CalendarDialogViewModel::class.java)
     }
     private lateinit var datePickCompleteListener: DatePickCompleteListener
-
+//
     /**
      * This block of variable are for dynamically adjusting the recycler view's height each time new
      * data is prepared.
