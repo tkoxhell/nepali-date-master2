@@ -3,7 +3,7 @@
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
             <corners android:radius="100dp" />
-            <solid android:color="@color/onclickColorLightBlue1" /> <!-- Modify pressed state background color -->
+            <solid android:color="@color/onclickColorLightBlue1Calendar" /> <!-- Modify pressed state background color -->
         </shape>
     </item>
     <item>

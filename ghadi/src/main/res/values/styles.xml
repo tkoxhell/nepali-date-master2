@@ -6,6 +6,10 @@
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
     </style>
+    <style name="CustomAlertDialogCalendar" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+    </style>
 
 
 </resources>

@@ -108,7 +108,7 @@ class CalendarDialogFragment : DialogFragment() {
                 }
             }
 
-            val builder = AlertDialog.Builder(it)
+            val builder = AlertDialog.Builder(it, R.style.CustomAlertDialogCalendar)
             builder.setView(mBinding.root)
 
             val width = activity?.window?.decorView?.width ?: 0
