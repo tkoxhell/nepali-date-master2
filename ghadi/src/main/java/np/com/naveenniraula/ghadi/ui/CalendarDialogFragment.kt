@@ -3,12 +3,14 @@ package np.com.naveenniraula.ghadi.ui
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.Observable
@@ -112,6 +114,7 @@ class CalendarDialogFragment : DialogFragment() {
             val width = activity?.window?.decorView?.width ?: 0
 
             alertDialog = builder.create()
+            alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             alertDialog.window?.setLayout(width, 400)
 
             return alertDialog
@@ -323,7 +326,7 @@ class CalendarDialogFragment : DialogFragment() {
         // action button listeners
         // -----------------------
 
-        val confirm = getRootView().findViewById<Button>(R.id.gpfConfirm)
+        val confirm = getRootView().findViewById<TextView>(R.id.gpfConfirm)
         // confirm.setBackgroundColor(bgFgColor.first)
         // confirm.setTextColor(bgFgColor.second)
         confirm.setOnClickListener {
@@ -367,7 +370,7 @@ class CalendarDialogFragment : DialogFragment() {
             Log.d("BQ7CH72", result.toString())
             dismiss()
         }
-        val cancel = getRootView().findViewById<Button>(R.id.gpfCancel)
+        val cancel = getRootView().findViewById<TextView>(R.id.gpfCancel)
         // cancel.setBackgroundColor(bgFgColor.first)
         // cancel.setTextColor(bgFgColor.second)
         cancel.setOnClickListener {

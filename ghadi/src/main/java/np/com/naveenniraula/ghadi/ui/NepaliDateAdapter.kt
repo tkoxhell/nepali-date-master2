@@ -43,7 +43,7 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
         val vh = Vh(inflater.inflate(R.layout.item_date_cell, parent, false))
         vh.root.setOnClickListener {
             val di = (dataList[vh.adapterPosition] as DateItem)
-            if (di.isClickable && lastCellPosition != vh.adapterPosition) {
+//            if (di.isClickable && lastCellPosition != vh.adapterPosition) {
 
                 // check if there were any last cells
                 if (lastCellPosition != RecyclerView.NO_POSITION) {
@@ -79,7 +79,7 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
                 Log.i("RVHEIGHT", "$currentCell")
 
                 selectedDate = currentCell
-            }
+//            }
         }
         return vh
     }
@@ -129,15 +129,15 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
         }
     }
 
-    private fun selectTodaysDate() {
-        val today: Int = Date(Calendar.getInstance()).convertToNepali().day
-        val todayPos = today + 8
-
-        val currentCell = dataList[todayPos] as DateItem
-        currentCell.isSelected = !currentCell.isSelected
-        dataList[todayPos] = currentCell as T
-        lastCellPosition = todayPos
-    }
+//    private fun selectTodaysDate() {
+//        val today: Int = Date(Calendar.getInstance()).convertToNepali().day
+//        val todayPos = today + 8
+//
+//        val currentCell = dataList[todayPos] as DateItem
+//        currentCell.isSelected = !currentCell.isSelected
+//        dataList[todayPos] = currentCell as T
+//        lastCellPosition = todayPos
+//    }
 
     override fun getItemCount(): Int {
         return dataList.size
@@ -160,6 +160,9 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
 
         dataList.addAll(data)
         notifyItemRangeInserted(0, data.size)
+
+        // Select today's date after setting data
+//        selectTodaysDate()
     }
 
     fun addData(data: T) {

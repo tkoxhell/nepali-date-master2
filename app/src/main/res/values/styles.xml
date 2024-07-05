@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- res/values/styles.xml -->
+    <style name="MyMaterialButtonToggleGroup" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="cornerRadius">16dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+    </style>
+
+
 </resources>

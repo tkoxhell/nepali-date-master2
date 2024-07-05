@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:state_pressed="true">
+    <shape android:shape="rectangle">
+        <corners android:radius="20dp" />
+        <stroke
+            android:width="0.5dp"
+            android:color="@color/onclickColorLightBlue1" />
+        <solid android:color="@color/onclickColorLightBlue1" /> <!-- Modify pressed state background color -->
+    </shape>
+</item>
+<item>
+    <shape android:shape="rectangle">
+        <corners android:radius="20dp" />
+        <stroke
+            android:width="0.5dp"
+            android:color="@color/darkBorderColor" />
+    </shape>
+</item>
+</selector>

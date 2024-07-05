@@ -6,9 +6,9 @@ apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.xyznaveen'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
