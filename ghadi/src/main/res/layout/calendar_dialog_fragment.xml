@@ -105,12 +105,11 @@
                             android:layout_marginStart="16dp"
                             android:background="@drawable/bg_white_btn_circle_border"
                             android:padding="10dp"
-                            android:tint="@color/collMat"
                             android:visibility="@{ui.calculating ? View.GONE : View.VISIBLE}"
                             app:layout_constraintBottom_toBottomOf="@+id/gpfYear"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/gpfYear"
-                            app:srcCompat="@drawable/ic_back" />
+                            app:srcCompat="@drawable/ic_back_calendar" />
 
                     <ImageButton
                             android:id="@+id/gpfNextYear"
@@ -123,7 +122,7 @@
                             app:layout_constraintBottom_toBottomOf="@+id/gpfPrevYear"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/gpfPrevYear"
-                            app:srcCompat="@drawable/ic_next" />
+                            app:srcCompat="@drawable/ic_next_calendar" />
                     <!--END: Year Button-->
 
                     <TextView
@@ -153,7 +152,7 @@
                             app:layout_constraintBottom_toBottomOf="@+id/gpfMonth"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/gpfMonth"
-                            app:srcCompat="@drawable/ic_next" />
+                            app:srcCompat="@drawable/ic_next_calendar" />
 
                     <ImageButton
                             android:id="@+id/gpfPrevMonth"
@@ -162,12 +161,11 @@
                             android:layout_marginStart="16dp"
                             android:background="@drawable/bg_white_btn_circle_border"
                             android:padding="10dp"
-                            android:tint="@color/collMat"
                             android:visibility="@{ui.calculating ? View.GONE : View.VISIBLE}"
                             app:layout_constraintBottom_toBottomOf="@+id/gpfMonth"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/gpfMonth"
-                            app:srcCompat="@drawable/ic_back" />
+                            app:srcCompat="@drawable/ic_back_calendar" />
                     <!--END: Month Buttons-->
 
                     <TextView
@@ -231,7 +229,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
                             android:layout_marginEnd="20dp"
-                            android:background="@drawable/bg_white_btn"
+                            android:background="@drawable/bg_white_btn_calendar"
                             android:paddingStart="24dp"
                             android:paddingTop="11dp"
                             android:paddingEnd="24dp"
@@ -249,7 +247,7 @@
                             android:layout_marginTop="16dp"
                             android:layout_marginEnd="20dp"
                             android:layout_marginBottom="20dp"
-                            android:background="@drawable/bt_color_btn"
+                            android:background="@drawable/bt_color_btn_calendar"
                             android:clickable="true"
                             android:focusable="true"
                             android:paddingStart="24dp"

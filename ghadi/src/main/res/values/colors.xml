@@ -4,9 +4,9 @@
     <color name="accentColor">#76BF4E</color>
     <color name="holo_red_dark">#ffcc0000</color>
     <color name="darkBorderColor">#26324A</color>
-    <color name="onclickColorLightBlue1">#E1EAFA</color>
+    <color name="onclickColorLightBlue1Calendar">#E1EAFA</color>
     <color name="primaryColor">#26324A</color>
     <color name="white">#FFFFFF</color>
-    <color name="icon_color">#606F8A</color>
+    <color name="icon_color_calendar">#606F8A</color>
     <color name="transparent">@android:color/transparent</color>
 </resources>
