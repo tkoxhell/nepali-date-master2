@@ -5,7 +5,7 @@
         <item name="cornerRadius">16dp</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
-        <item name="backgroundTint">@color/darkBorderColor</item>
+        <item name="strokeColor">@color/darkBorderColor</item>
     </style>
 
     <style name="CustomAlertDialogCalendar" parent="Theme.AppCompat.Light.Dialog.Alert">
