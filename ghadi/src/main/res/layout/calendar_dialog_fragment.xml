@@ -39,8 +39,9 @@
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
                             android:id="@+id/materialButtonToggleGroup"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="48dp"
+                            android:layout_marginHorizontal="16dp"
                             android:layout_marginTop="10dp"
                             app:checkedButton="@id/btn2"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +53,7 @@
                         <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn1"
                                 style="@style/MyMaterialButtonToggleGroup"
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="AD" />
@@ -60,7 +61,7 @@
                         <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn2"
                                 style="@style/MyMaterialButtonToggleGroup"
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="BS" />
