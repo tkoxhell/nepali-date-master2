@@ -34,7 +34,6 @@ import java.util.*
 class CalendarDialogFragment : DialogFragment() {
 
     companion object {
-
         fun newInstance() = CalendarDialogFragment()
 
         fun newInstance(date: Date): CalendarDialogFragment {
@@ -58,20 +57,16 @@ class CalendarDialogFragment : DialogFragment() {
 
     var bgFgColor: Pair<Int, Int> = Pair(Color.BLACK, Color.WHITE)
 
-    private val adapter = NepaliDateAdapter<DateItem>()
+    private val nepaliAdapter = NepaliDateAdapter<DateItem>()
+    private val adAdapter = AdDateAdapter()
 
     private lateinit var mFragmentManager: FragmentManager
-
     private lateinit var requestedDate: Date
     private val viewModel: CalendarDialogViewModel by lazy {
         ViewModelProvider(this).get(CalendarDialogViewModel::class.java)
     }
     private lateinit var datePickCompleteListener: DatePickCompleteListener
 
-    /**
-     * This block of variable are for dynamically adjusting the recycler view's height each time new
-     * data is prepared.
-     */
     private var minHeight = 0
     private var lastHeight = 0
     private var addedHeight = 0
@@ -86,7 +81,6 @@ class CalendarDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setStyle(STYLE_NO_TITLE, R.style.Theme_AppCompat_Dialog_Alert)
         super.onCreate(savedInstanceState)
-
     }
 
     @SuppressLint("InflateParams")
@@ -95,11 +89,11 @@ class CalendarDialogFragment : DialogFragment() {
             val inflater = LayoutInflater.from(it)
             mBinding = CalendarDialogFragmentBinding.inflate(inflater)
 
-            setupNepaliDate()
+            setupDateAdapter()
 
             setupListeners()
 
-            mBinding.materialButtonToggleGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            mBinding.materialButtonToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
                 if (isChecked) {
                     when (checkedId) {
                         R.id.btn1 -> viewModel.ui.isBs = false
@@ -129,14 +123,14 @@ class CalendarDialogFragment : DialogFragment() {
                 val ui = viewModel.ui
                 when (propertyId) {
                     BR.bs -> {
+                        mBinding.nepaliDateList.adapter = if (ui.isBs) nepaliAdapter else adAdapter
                         if (ui.isBs) {
                             changeDate(currentDateInNepali)
+                            nepaliAdapter.adBsToggled()
                         } else {
                             changeDate(viewModel.currentEnglishDate.convertToNepali())
+                            adAdapter.adBsToggled()
                         }
-
-                        // to avoid crash when the data is less than the last index
-                        adapter.adBsToggled()
                     }
                 }
             }
@@ -144,7 +138,11 @@ class CalendarDialogFragment : DialogFragment() {
 
         viewModel.getCalendarData().observe(this, androidx.lifecycle.Observer {
             viewModel.ui.isCalculating = false
-            adapter.setDataList(it)
+            if (viewModel.ui.isBs) {
+                nepaliAdapter.setDataList(it)
+            } else {
+                adAdapter.setDataList(it)
+            }
             adjustRecyclerViewHeight(it.size)
         })
 
@@ -158,40 +156,25 @@ class CalendarDialogFragment : DialogFragment() {
         else viewModel.getAdDate(_date, true)
     }
 
-    /**
-     * Dynamically adjusts the height of [RecyclerView] based on the number of data prepared.
-     */
     private fun adjustRecyclerViewHeight(itemCount: Int) {
         val currentHeight = mBinding.nepaliDateList.layoutManager?.height ?: 0
 
         if (lastHeight == 0) {
-            // we do this only once after the view has been setup
-            // i.e:  if the height is 0 else there is no need to execute this block
             lastHeight = currentHeight
-
-            // should hold reference to minimum height this will not increase or decrease
             minHeight = lastHeight
-
-            // additional row height which will be added or deducted
             addedHeight = currentHeight / 6
-
         }
 
         if (itemCount < 43) {
-            // if there are 6 ( 7 * 6 = 42 ) rows do not increment more than the minimum height as it will
-            // add an extra space after the last row; will look bad
             lastHeight = minHeight
         } else {
-            // check if additional row height is added but must be added only once
             if ((lastHeight - addedHeight) == minHeight) {
-                // do not add anymore height because we are already at max
+                // do nothing
             } else {
-                // add the additional height
                 lastHeight = minHeight + addedHeight
             }
         }
 
-        // finally set the height to recycler view
         val lp = mBinding.nepaliDateList.layoutParams
         lp.height = lastHeight
         mBinding.nepaliDateList.layoutParams = lp
@@ -201,17 +184,14 @@ class CalendarDialogFragment : DialogFragment() {
         mBinding.progressBarParent.layoutParams = plp
     }
 
-    /**
-     * Setup listeners of all available actions.
-     * Year [next | prev]; Month [next | prev] and [ OK | Cancel]
-     */
+    private fun setupDateAdapter() {
+        val recyclerView = getRootView().findViewById<RecyclerView>(R.id.nepaliDateList)
+        recyclerView.setHasFixedSize(false)
+        recyclerView.adapter = if (viewModel.ui.isBs) nepaliAdapter else adAdapter
+        recyclerView.layoutManager = GridLayoutManager(context, DAYS_IN_A_WEEK)
+    }
+
     private fun setupListeners() {
-
-        // -----------------------
-        // year button listeners
-        // -----------------------
-
-//        mBinding.gpfYear.setTextColor(bgFgColor.first)
         mBinding.gpfYear.setTextColor(getResources().getColor(R.color.collMat))
         viewModel.ui.bsYear =
             if (::requestedDate.isInitialized) ConversionUtil.toNepali(requestedDate.convertToNepali().year.toString())
@@ -221,10 +201,7 @@ class CalendarDialogFragment : DialogFragment() {
         val yPrev = getRootView().findViewById<ImageButton>(R.id.gpfPrevYear)
         val yNext = getRootView().findViewById<ImageButton>(R.id.gpfNextYear)
 
-//        Ui.tintButtonImage(yPrev, R.color.collMat)
-
         yPrev.setOnClickListener {
-
             val yearNumber = getDisplayedYear() - 1
 
             if (yearNumber == DateUtils.endNepaliYear - 1) {
@@ -247,7 +224,6 @@ class CalendarDialogFragment : DialogFragment() {
             }
         }
         yNext.setOnClickListener {
-
             val yearNumber = getDisplayedYear() + 1
 
             if (yearNumber == DateUtils.endNepaliYear - 1) {
@@ -270,11 +246,6 @@ class CalendarDialogFragment : DialogFragment() {
             }
         }
 
-        // -----------------------
-        // month button listeners
-        // -----------------------
-
-//        mBinding.gpfMonth.setTextColor(bgFgColor.first)
         mBinding.gpfMonth.setTextColor(getResources().getColor(R.color.collMat))
         var extMonth = if (::requestedDate.isInitialized) {
             DateUtils.MONTH_NAMES_MAPPED[requestedDate.convertToNepali().month]
@@ -305,7 +276,6 @@ class CalendarDialogFragment : DialogFragment() {
         }
 
         val prev = getRootView().findViewById<ImageButton>(R.id.gpfPrevMonth)
-//        Ui.tintButtonImage(prev, R.color.collMat)
         prev.setOnClickListener {
             if (viewModel.ui.isBs) {
                 val nYear = getDisplayedYear()
@@ -313,7 +283,6 @@ class CalendarDialogFragment : DialogFragment() {
                 val upcomingMonthNumber = DateUtils.getMonthNumber(upcomingMonthName)
                 viewModel.ui.bsMonth = upcomingMonthName
                 changeDate(Date(nYear, upcomingMonthNumber, 1))
-
                 extMonth = DateUtils.MONTH_NAMES_MAPPED[upcomingMonthNumber]
                 viewModel.ui.bsMonth = "${viewModel.ui.bsMonth} ( $extMonth )"
             } else {
@@ -322,26 +291,14 @@ class CalendarDialogFragment : DialogFragment() {
             }
         }
 
-        // -----------------------
-        // action button listeners
-        // -----------------------
-
         val confirm = getRootView().findViewById<TextView>(R.id.gpfConfirm)
-        // confirm.setBackgroundColor(bgFgColor.first)
-        // confirm.setTextColor(bgFgColor.second)
         confirm.setOnClickListener {
-
             if (!::datePickCompleteListener.isInitialized) throw listenerException
 
-            val date = adapter.getSelectedDate()
+            val date = if (viewModel.ui.isBs) nepaliAdapter.getSelectedDate() else adAdapter.getSelectedDate()
 
             if (date.adYear == date.year) {
-                // we have the same year meaning we will need to convert everything
-
-                // let us start by incrementing the ad month by 1 we don't have index 0 start
                 date.adMonth = "${date.adMonth.toInt().inc()}"
-
-
             }
 
             Log.d("jqiu7", "$date")
@@ -371,17 +328,12 @@ class CalendarDialogFragment : DialogFragment() {
             dismiss()
         }
         val cancel = getRootView().findViewById<TextView>(R.id.gpfCancel)
-        // cancel.setBackgroundColor(bgFgColor.first)
-        // cancel.setTextColor(bgFgColor.second)
         cancel.setOnClickListener {
             if (!::datePickCompleteListener.isInitialized) throw listenerException
             dismiss()
         }
     }
 
-    /**
-     * Changes date based on the button click of respective entity; Month or Year.
-     */
     private fun changeDate(date: Date?) {
         viewModel.ui.isCalculating = true
         Log.i("RVHEIGHT", "the date is null : ${date == null}")
@@ -396,44 +348,23 @@ class CalendarDialogFragment : DialogFragment() {
     }
 
     private fun showDateUnavailable() {
-
+        // Implement if needed
     }
 
-    /**
-     * Prepare nepali date for current month.
-     */
-    private fun setupNepaliDate() {
-        val recyclerView = getRootView().findViewById<RecyclerView>(R.id.nepaliDateList)
-        recyclerView.setHasFixedSize(false)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = GridLayoutManager(context, DAYS_IN_A_WEEK)
-    }
-
-    fun setDatePickCompleteListener(datePickCompleteListener: DatePickCompleteListener) {
-        this.datePickCompleteListener = datePickCompleteListener
-    }
-
-    /**
-     * Get the root view of this fragment.
-     */
     private fun getRootView(): View {
         return mBinding.root
     }
 
-    /**
-     * Get currently visible month name in the header of the calendar view.
-     * @return name of the month currently visible.
-     */
+    private fun getDisplayedYear(): Int {
+        return viewModel.ui.bsYear.toInt()
+    }
+
     private fun getDisplayedMonth(): String {
         return viewModel.ui.bsMonth.split(" ")[0]
     }
 
-    /**
-     * Get currently visible year in the header of the calendar view.
-     * @return year number as [Int].
-     */
-    private fun getDisplayedYear(): Int {
-        return viewModel.ui.bsYear.toInt()
+    fun setDatePickCompleteListener(datePickCompleteListener: DatePickCompleteListener) {
+        this.datePickCompleteListener = datePickCompleteListener
     }
 
     fun setFragmentManager(mFragmentManager: FragmentManager) {
@@ -443,5 +374,4 @@ class CalendarDialogFragment : DialogFragment() {
     fun show() {
         show(childFragmentManager, this.tag)
     }
-
 }

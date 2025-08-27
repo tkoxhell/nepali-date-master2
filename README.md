@@ -1,43 +1,84 @@
-# Pal
-###### Customizable nepali date picker.
+# Nepali Date Picker
 
+A customizable Nepali date picker library for Android applications.
 
-### Features
-- Open predefined nepali date.
+## Features
 
-### To-Do
-- [ ] Add a `Builder` class for easy implementation
+- Support for both Nepali (BS) and English (AD) calendar systems
+- Customizable colors and themes
+- **Future date restriction** - Disable selection of future dates from today
+- Holiday highlighting
+- Responsive design
 
-### How do I use this ?
+## Usage
 
-##### Include In Project
+### Basic Usage
 
-you must be using  jitpack to be able to use this project.
-
-see jitpack.io for more details on jitpack
-
+```kotlin
+Pal.Builder(fragmentManager)
+    .fromNepali(2080, 1, 1) // Start from specific Nepali date
+    .withCallback(object : DatePickCompleteListener {
+        override fun onDateSelectionComplete(result: GhadiResult) {
+            // Handle date selection
+            Log.d("Date", "Selected: ${result.humanReadableBs}")
+        }
+    })
+    .build()
+    .show()
 ```
-implementation 'com.github.xyznaveen:pal:$latest-version'
-// see releases for $latest-version
+
+### With Future Date Restriction
+
+```kotlin
+Pal.Builder(fragmentManager)
+    .fromNepali(2080, 1, 1)
+    .setDisableFutureDates(true) // Disable future dates (default: true)
+    .withCallback(object : DatePickCompleteListener {
+        override fun onDateSelectionComplete(result: GhadiResult) {
+            // Handle date selection
+        }
+    })
+    .build()
+    .show()
 ```
 
+### Customize Colors
+
+```kotlin
+Pal.Builder(fragmentManager)
+    .fromNepali(2080, 1, 1)
+    .setBackgroundColor(Color.BLUE)
+    .setForegroundColor(Color.WHITE)
+    .setDisableFutureDates(true)
+    .withCallback(datePickCompleteListener)
+    .build()
+    .show()
 ```
-// Kotlin
 
-// instantiate
-val ghadiFragment = GhadiPickerFragment.newInstance(2075,12,17)
+## Future Date Restriction
 
-// add listener
-ghadiFragment.setDatePickCompleteListener(object : DatePickCompleteListener {
-    override fun onDateSelectionComplete(result: GhadiResult) {
-        // upon successful date selection this method is fired
-    }
+The library now includes a feature to disable future date selections:
 
-    override fun onDateSelectionCancelled(result: GhadiResult) {
-        // if the user cancelled the date selection
-    }
-})
+- **Enabled by default**: Future dates are automatically disabled
+- **Configurable**: Use `setDisableFutureDates(false)` to allow future date selection
+- **Visual feedback**: Disabled dates are shown with a grayed-out appearance
+- **Both calendars**: Works with both Nepali (BS) and English (AD) calendar systems
 
-// show the fragment
-ghadiFragment.show(supportFragmentManager, ghadiFragment.tag)
+### How it works
+
+1. **Date comparison**: The library compares each date with today's date
+2. **Clickable state**: Future dates have `isClickable` set to `false`
+3. **Visual styling**: Disabled dates are styled with gray text and background
+4. **User feedback**: An informational text shows "Future dates are disabled"
+
+## Installation
+
+Add the dependency to your `build.gradle` file:
+
+```gradle
+implementation 'np.com.naveenniraula:ghadi:1.0.0'
 ```
+
+## License
+
+This project is licensed under the MIT License.

@@ -41,18 +41,17 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
 
         val inflater = LayoutInflater.from(parent.context)
         val vh = Vh(inflater.inflate(R.layout.item_date_cell, parent, false))
-        vh.root.setOnClickListener {
-            val di = (dataList[vh.adapterPosition] as DateItem)
-//            if (di.isClickable && lastCellPosition != vh.adapterPosition) {
-
-                // check if there were any last cells
+        vh.root.setOnClickListener { view ->
+            val position = vh.adapterPosition
+            val di = (dataList[position] as DateItem)
+            if (di.isClickable) {
+                // Only proceed if the date is clickable
                 if (lastCellPosition != RecyclerView.NO_POSITION) {
                     try {
                         val lastCell = dataList[lastCellPosition] as DateItem
                         lastCell.isSelected = false
-                        dataList[lastCellPosition]
+                        dataList[lastCellPosition] = lastCell as T
                     } catch (ex: IndexOutOfBoundsException) {
-                        // like the printed message this is non fatal.
                         Log.e(
                             "RVHEIGHT",
                             "This is a non fatal crash. I have not handled the AD / BS toggle properly."
@@ -60,38 +59,32 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
                     }
                 }
 
-                val currentCell = dataList[vh.adapterPosition] as DateItem
-                currentCell.isSelected = true
-                dataList[vh.adapterPosition] = currentCell as T
+                di.isSelected = true
+                dataList[position] = di as T
 
                 notifyItemChanged(lastCellPosition)
-                notifyItemChanged(vh.adapterPosition)
+                notifyItemChanged(position)
 
-                // this is the last position
-                lastCellPosition = vh.adapterPosition
+                lastCellPosition = position
 
-                // check if current cell is ad date
-                if (currentCell.isAd()) {
-                    currentCell.adDate = currentCell.date
-                    currentCell.adYear = currentCell.year
-                    currentCell.adMonth = currentCell.month
+                if (di.isAd()) {
+                    di.adDate = di.date
+                    di.adYear = di.year
+                    di.adMonth = di.month
                 }
-                Log.i("RVHEIGHT", "$currentCell")
+                Log.i("RVHEIGHT", "$di")
 
-                selectedDate = currentCell
-//            }
+                selectedDate = di
+            }
         }
         return vh
     }
 
     fun adBsToggled() {
-        lastCellPosition = Adapter.NO_SELECTION
+        lastCellPosition = RecyclerView.NO_POSITION
     }
 
     fun getSelectedDate(): DateItem {
-
-        // if the variable is not initialized no date was select
-        // so, return today's date
         if (!::selectedDate.isInitialized) {
             selectedDate = DateItem.getTodayNepali().apply {
                 val tempDate = Calendar.getInstance()
@@ -101,43 +94,10 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
             }
         }
 
-        /*Log.i("RVHEIGHT","we have $selectedDate")
-
-        // adjustment for AD because we have integrated both AD and BS
-        if (selectedDate.isAd()) {
-            val nepDate = Date(
-                selectedDate.adYear.toInt(),
-                selectedDate.adMonth.toInt(),
-                selectedDate.adDate.toInt()
-            ).convertToNepali()
-            val totalDays = DateUtils.getNumDays(nepDate.year, nepDate.month)
-
-            // copy everything from BS to AD
-            selectedDate.adYear = selectedDate.year
-            selectedDate.adMonth = selectedDate.month
-            selectedDate.adDate = selectedDate.date
-
-            // fill in the nepali date details
-            selectedDate.year = nepDate.year.toString()
-            selectedDate.month = nepDate.month.toString()
-            selectedDate.date = nepDate.day.toString()
-            selectedDate.dateEnd = totalDays.toString()
-        }*/
-
         return selectedDate.apply {
             dateEnd = DateUtils.getNumDays(year.toInt(), month.toInt()).toString()
         }
     }
-
-//    private fun selectTodaysDate() {
-//        val today: Int = Date(Calendar.getInstance()).convertToNepali().day
-//        val todayPos = today + 8
-//
-//        val currentCell = dataList[todayPos] as DateItem
-//        currentCell.isSelected = !currentCell.isSelected
-//        dataList[todayPos] = currentCell as T
-//        lastCellPosition = todayPos
-//    }
 
     override fun getItemCount(): Int {
         return dataList.size
@@ -147,22 +107,18 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
         val dt = (dataList[position] as DateItem)
         holder.adjust(dt)
 
-        if (position >= DAYS_IN_A_WEEK && dt.date.toInt() < DAYS_START_NUM) {
+        if (position >= DAYS_IN_A_WEEK && dt.date.toIntOrNull()?.let { it < DAYS_START_NUM } == true) {
             holder.test.text = EMPTY_STRING
             return
         }
     }
 
     fun setDataList(data: ArrayList<T>) {
-
         dataList.clear()
         notifyDataSetChanged()
 
         dataList.addAll(data)
         notifyItemRangeInserted(0, data.size)
-
-        // Select today's date after setting data
-//        selectTodaysDate()
     }
 
     fun addData(data: T) {
@@ -180,8 +136,6 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
         val engDate: TextView = itemView.findViewById(R.id.english_date)
 
         fun adjust(di: DateItem) {
-
-            // make clickable or un-clickable
             root.isClickable = di.isClickable
 
             if (di.adDate == "-1" || di.adDate == di.date) {
@@ -198,36 +152,32 @@ class NepaliDateAdapter<T> : RecyclerView.Adapter<NepaliDateAdapter.Vh>() {
 
             if (!di.isClickable) {
                 engDate.setTextColor(Color.WHITE)
+                test.setTextColor(Color.GRAY) // Visual cue for non-clickable dates
             }
-
         }
 
         private fun setNormalColor(di: DateItem) {
-
             if (di.isSelected) {
                 root.setBackgroundResource(R.drawable.bg_circle_padding_tran)
                 test.setTextColor(Color.BLACK)
             } else {
-                test.setTextColor(Color.BLACK)
+                test.setTextColor(if (di.isClickable) Color.BLACK else Color.GRAY)
                 root.setBackgroundColor(Color.WHITE)
             }
         }
 
         private fun setTodayColor() {
             test.setTextColor(Color.WHITE)
-//            root.setBackgroundResource(R.drawable.bg_circle_padding)
             root.setBackgroundResource(R.drawable.bg_circle_padding_blue)
         }
 
         private fun setHolidayColor() {
             test.setTextColor(Color.RED)
         }
-
     }
 
     companion object {
         private var lastCellPosition: Int = RecyclerView.NO_POSITION
         private const val EMPTY_STRING = ""
     }
-
 }

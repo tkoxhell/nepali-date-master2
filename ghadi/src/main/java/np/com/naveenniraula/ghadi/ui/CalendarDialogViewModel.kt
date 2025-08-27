@@ -28,18 +28,15 @@ class CalendarDialogViewModel : ViewModel() {
     }
 
     /**
-     * Gets the calendar dates for current month.
+     * Gets the calendar dates for current month in Nepali (BS) calendar.
      * @param date the date instance which can be any custom date.
+     * @param markPassedDay whether to mark the passed day as selected.
      */
     fun prepareCalendarData(date: Date, markPassedDay: Boolean = false) {
-
         mService.submit {
-
             val list = ArrayList<DateItem>()
 
-            // ------------------------------------
-            // add headers for days representation
-            // ------------------------------------
+            // Add headers for days representation
             list.add(DateItem(DateUtils.HEADER_SUN))
             list.add(DateItem(DateUtils.HEADER_MON))
             list.add(DateItem(DateUtils.HEADER_TUE))
@@ -49,47 +46,42 @@ class CalendarDialogViewModel : ViewModel() {
             list.add(DateItem(DateUtils.HEADER_SAT))
 
             val todayInBs = Date(Calendar.getInstance()).convertToNepali()
-            // today's date in ad
-            // today's date in bs
             val nepaliDate = date.convertToNepali()
-            // 1 gatey in ad
-            val nepMonthSuruVayekoEnglishDate =
-                Date(nepaliDate.year, nepaliDate.month, 1).convertToEnglish()
-            // number of days this month in bs
             val numberOfDaysInMonth = DateUtils.getNumDays(nepaliDate.year, nepaliDate.month)
 
+            // Calculate the starting day of the week for the first day of the month
+            val nepMonthSuruVayekoEnglishDate =
+                Date(nepaliDate.year, nepaliDate.month, 1).convertToEnglish()
             var saturdayIndex = 8 - nepMonthSuruVayekoEnglishDate.weekDayNum
 
-            for (i in (2 - nepMonthSuruVayekoEnglishDate.weekDayNum)..numberOfDaysInMonth) {
+            // Add padding for days before the first day of the month
+            for (i in 1 until nepMonthSuruVayekoEnglishDate.weekDayNum) {
+                list.add(DateItem.getDefault())
+            }
 
-                val model = DateItem("$i", "${nepaliDate.month}", "${nepaliDate.year}")
+            for (i in 1..numberOfDaysInMonth) {
+                val model = DateItem(
+                    date = "$i",
+                    month = "${nepaliDate.month}",
+                    year = "${nepaliDate.year}"
+                )
 
-                // set the holiday of the current date
-                // if holiday the date will appear in red
+                // Set holiday status (Saturdays)
                 model.isHoliday = if (saturdayIndex == i) {
                     saturdayIndex += DAYS_IN_A_WEEK
                     true
                 } else false
 
-                if (i >= 1) {
-                    // clickable only if the model contains actual date
-                    model.isClickable = true
-                    model.month = nepaliDate.month.toString()
-                    model.year = nepaliDate.year.toString()
-                }
+                // Set clickability based on whether the date is in the future
+                model.isClickable = !model.isFutureDate()
 
-                // select passed date's day by default
-                if (
-                    markPassedDay && date.convertToNepali().day == i
-                ) {
+                // Select passed date's day by default if specified
+                if (markPassedDay && date.convertToNepali().day == i) {
                     model.isSelected = true
                 }
 
-                // convert to nepali and assign today's day
-                // convert it back to english
-                val convertedAd = date.convertToNepali().apply {
-                    day = i
-                }.convertToEnglish()
+                // Convert to English (AD) date for display
+                val convertedAd = Date(nepaliDate.year, nepaliDate.month, i).convertToEnglish()
                 convertedAd.apply {
                     model.adYear = this.year.toString()
                     model.adMonth = this.month.toString()
@@ -98,7 +90,7 @@ class CalendarDialogViewModel : ViewModel() {
 
                 Log.d("DAteIIII", "actual : $date converted : $convertedAd")
 
-                // check if the specified date is
+                // Check if the date is today
                 model.isToday = todayInBs.day == i
                         && model.year == todayInBs.year.toString()
                         && model.month == todayInBs.month.toString()
@@ -109,11 +101,10 @@ class CalendarDialogViewModel : ViewModel() {
                 }
 
                 list.add(model)
-
-                calendarData.postValue(list)
             }
-        }
 
+            calendarData.postValue(list)
+        }
     }
 
     private val months = arrayOf(
@@ -132,11 +123,10 @@ class CalendarDialogViewModel : ViewModel() {
     )
 
     /**
-     * Prepare the date for english and get it.
+     * Prepare the date for English (AD) calendar and get it.
      *
-     * @param date
-     * @param markPassedDay
-     *
+     * @param date the date instance, or null to use currentEnglishDate.
+     * @param markPassedDay whether to mark the passed day as selected.
      */
     fun getAdDate(
         date: Date? = null,
@@ -145,9 +135,7 @@ class CalendarDialogViewModel : ViewModel() {
         mService.submit {
             val list = ArrayList<DateItem>()
 
-            // ------------------------------------
-            // add headers for days representation
-            // ------------------------------------
+            // Add headers for days representation
             list.add(DateItem(DateUtils.HEADER_SUN))
             list.add(DateItem(DateUtils.HEADER_MON))
             list.add(DateItem(DateUtils.HEADER_TUE))
@@ -156,52 +144,49 @@ class CalendarDialogViewModel : ViewModel() {
             list.add(DateItem(DateUtils.HEADER_FRI))
             list.add(DateItem(DateUtils.HEADER_SAT))
 
-            // first get total number of days this month
-            val calendar = currentEnglishDate.calendar
+            // Use provided date or currentEnglishDate
+            val calendar = (date ?: currentEnglishDate).calendar
 
             val _year = calendar.get(Calendar.YEAR)
-
-            // getting details of the month before we move any further
             val _month = calendar.get(Calendar.MONTH)
             val _maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-
-            // this will be required to mark current day in the UI
             val _originallySetDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
-            // move the date back to start of the month to find out what day was 1 on
-            // eg: September 1, 2020 was on Thursday ( 3 )
+            // Move to the start of the month to find the first day's weekday
             calendar.set(Calendar.DAY_OF_MONTH, 1)
-
-            // here we will get that Thursday ( 3 ); but only 3 for the constant THURSDAY
             val _dayStartOffset = calendar.get(Calendar.DAY_OF_WEEK)
 
             log("we have _dayStartOffset : $_dayStartOffset")
 
-            // pad the number of days as offset fill -1 until the actual day starts
-            // but pad only if the day is greater than 1 i.e sunday ; else we will have an extra row
-            // can be improved to include previous month's details; but maybe later.
+            // Pad with default items for days before the first day
             for (index in 1 until _dayStartOffset) {
                 val item = DateItem.getDefault()
                 list.add(item)
             }
 
-            // today
+            // Today
             val thisYear = mThisMonth.get(Calendar.YEAR)
             val thisMonth = mThisMonth.get(Calendar.MONTH)
             val thisDay = mThisMonth.get(Calendar.DAY_OF_MONTH)
 
-            // we will calculate actual date and assign it
+            // Generate days for the month
             for (day in 1.._maxDays) {
-                val item = DateItem.getDefault()
+                val item = DateItem(
+                    date = day.toString(),
+                    year = _year.toString(),
+                    month = _month.toString(),
+                    adDate = day.toString(),
+                    adYear = _year.toString(),
+                    adMonth = (_month + 1).toString() // Adjust for 1-based month indexing
+                )
 
-                item.date = day.toString()
-                item.year = _year.toString()
-                item.month = _month.toString()
-                item.isClickable = true
+                // Set clickability based on whether the date is in the future
+                item.isClickable = !item.isFutureDate(isAdCalendar = true)
 
+                // Mark today
                 if ((_originallySetDayOfMonth == day)
-                        .and(_year == thisYear)
-                        .and(_month == thisMonth)
+                    && (_year == thisYear)
+                    && (_month == thisMonth)
                 ) {
                     item.isToday = true
                 }
@@ -220,4 +205,8 @@ class CalendarDialogViewModel : ViewModel() {
         Log.i("RVHEIGHT", msg)
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        mService.shutdown()
+    }
 }

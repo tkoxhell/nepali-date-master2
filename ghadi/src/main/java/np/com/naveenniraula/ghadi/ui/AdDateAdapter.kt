@@ -2,6 +2,7 @@ package np.com.naveenniraula.ghadi.ui
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +28,6 @@ class AdDateAdapter : RecyclerView.Adapter<AdDateAdapter.Vh>() {
     private val color = Color.parseColor("#7f8c8d")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Vh {
-
         if (!::mBgDrawable.isInitialized) {
             mBgDrawableToday =
                 ContextCompat.getDrawable(parent.context, R.drawable.bg_circle_padding)!!
@@ -40,56 +40,64 @@ class AdDateAdapter : RecyclerView.Adapter<AdDateAdapter.Vh>() {
         val inflater = LayoutInflater.from(parent.context)
         val vh = Vh(inflater.inflate(R.layout.item_date_cell, parent, false))
         vh.root.setOnClickListener {
-            val di = (dataList[vh.adapterPosition] as DateItem)
-            if (di.isClickable && lastCellPosition != vh.adapterPosition) {
-
-                // check if there were any last cells
+            val di = dataList[vh.adapterPosition]
+            if (di.isClickable) {
                 if (lastCellPosition != RecyclerView.NO_POSITION) {
-                    val lastCell = dataList[lastCellPosition]
-                    lastCell.isSelected = false
-                    dataList[lastCellPosition]
+                    try {
+                        val lastCell = dataList[lastCellPosition]
+                        lastCell.isSelected = false
+                        dataList[lastCellPosition] = lastCell
+                    } catch (ex: IndexOutOfBoundsException) {
+                        Log.e(
+                            "RVHEIGHT",
+                            "This is a non fatal crash. I have not handled the AD / BS toggle properly."
+                        )
+                    }
                 }
 
-                val currentCell = dataList[vh.adapterPosition]
-                currentCell.isSelected = true
-                dataList[vh.adapterPosition] = currentCell
+                di.isSelected = true
+                dataList[vh.adapterPosition] = di
 
                 notifyItemChanged(lastCellPosition)
                 notifyItemChanged(vh.adapterPosition)
 
-                // this is the last position
                 lastCellPosition = vh.adapterPosition
-                selectedDate = currentCell
+                selectedDate = di
             }
         }
         return vh
     }
 
-    fun getSelectedDate(): DateItem {
+    fun adBsToggled() {
+        lastCellPosition = RecyclerView.NO_POSITION
+        Log.d("AdDateAdapter", "adBsToggled called, resetting lastCellPosition")
+    }
 
-        // if the variable is not initialized no date was select
-        // so, return today's date
+    fun getSelectedDate(): DateItem {
         if (!::selectedDate.isInitialized) {
-            selectedDate = DateItem.getTodayNepali().apply {
-                val tempDate = Calendar.getInstance()
-                adYear = tempDate.get(Calendar.YEAR).toString()
-                adMonth = tempDate.get(Calendar.MONTH).inc().toString()
-                adDate = tempDate.get(Calendar.DAY_OF_MONTH).toString()
-            }
+            val cal = Calendar.getInstance()
+            val today = Date(
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.DAY_OF_MONTH)
+            )
+            val todayNepali = today.convertToNepali()
+            selectedDate = DateItem(
+                date = todayNepali.day.toString(),
+                month = todayNepali.month.toString(),
+                year = todayNepali.year.toString(),
+                adDate = cal.get(Calendar.DAY_OF_MONTH).toString(),
+                adMonth = (cal.get(Calendar.MONTH) + 1).toString(),
+                adYear = cal.get(Calendar.YEAR).toString(),
+                isClickable = true,
+                isSelected = true,
+                isHoliday = false,
+                isToday = true
+            )
         }
         return selectedDate.apply {
             dateEnd = DateUtils.getNumDays(year.toInt(), month.toInt()).toString()
         }
-    }
-
-    private fun selectTodaysDate() {
-        val today: Int = Date(Calendar.getInstance()).convertToNepali().day
-        val todayPos = today + 8
-
-        val currentCell = dataList[todayPos]
-        currentCell.isSelected = !currentCell.isSelected
-        dataList[todayPos] = currentCell
-        lastCellPosition = todayPos
     }
 
     override fun getItemCount(): Int {
@@ -97,17 +105,16 @@ class AdDateAdapter : RecyclerView.Adapter<AdDateAdapter.Vh>() {
     }
 
     override fun onBindViewHolder(holder: Vh, position: Int) {
-        val dt = (dataList[position] as DateItem)
+        val dt = dataList[position]
         holder.adjust(dt)
 
-        if (position >= DAYS_IN_A_WEEK && dt.date.toInt() < DAYS_START_NUM) {
+        if (position >= DAYS_IN_A_WEEK && dt.date.toIntOrNull()?.let { it < DAYS_START_NUM } == true) {
             holder.test.text = EMPTY_STRING
             return
         }
     }
 
     fun setDataList(data: ArrayList<DateItem>) {
-
         dataList.clear()
         notifyDataSetChanged()
 
@@ -124,14 +131,11 @@ class AdDateAdapter : RecyclerView.Adapter<AdDateAdapter.Vh>() {
     }
 
     class Vh(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         val root: ConstraintLayout = itemView.findViewById(R.id.idcRoot)
         val test: TextView = itemView.findViewById(R.id.tesss)
         val engDate: TextView = itemView.findViewById(R.id.english_date)
 
         fun adjust(di: DateItem) {
-
-            // make clickable or un-clickable
             root.isClickable = di.isClickable
 
             if (di.isToday) setTodayColor()
@@ -144,35 +148,32 @@ class AdDateAdapter : RecyclerView.Adapter<AdDateAdapter.Vh>() {
 
             if (!di.isClickable) {
                 engDate.setTextColor(Color.WHITE)
+                test.setTextColor(Color.GRAY)
             }
-
         }
 
         private fun setNormalColor(di: DateItem) {
-
             if (di.isSelected) {
                 root.setBackgroundResource(R.drawable.bg_circle_padding_tran)
                 test.setTextColor(Color.BLACK)
             } else {
-                test.setTextColor(Color.BLACK)
+                test.setTextColor(if (di.isClickable) Color.BLACK else Color.GRAY)
                 root.setBackgroundColor(Color.WHITE)
             }
         }
 
         private fun setTodayColor() {
             test.setTextColor(Color.WHITE)
-            root.setBackgroundResource(R.drawable.bg_circle_padding)
+            root.setBackgroundResource(R.drawable.bg_circle_padding_blue)
         }
 
         private fun setHolidayColor() {
             test.setTextColor(Color.RED)
         }
-
     }
 
     companion object {
         private var lastCellPosition: Int = RecyclerView.NO_POSITION
         private const val EMPTY_STRING = ""
     }
-
 }
